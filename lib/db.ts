@@ -6,13 +6,22 @@ if (!MONGODB_URI) {
   throw new Error("Please define MONGO_URI in environment variables");
 }
 
+// Extend global type to include mongoose cache
+declare global {
+  // eslint-disable-next-line no-var
+  var mongoose: {
+    conn: mongoose.Connection | null;
+    promise: Promise<mongoose.Connection> | null;
+  };
+}
+
 let cached = global.mongoose;
 
 if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-export async function connectToDatabase() {
+export async function connectToDatabase(): Promise<mongoose.Connection> {
   if (cached.conn) {
     return cached.conn;
   }
@@ -23,7 +32,8 @@ export async function connectToDatabase() {
       maxPoolSize: 10,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => mongoose.connection);
+    // Non-null assertion since we already checked above
+    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => mongoose.connection);
   }
 
   try {
