@@ -24,7 +24,7 @@ export default function LoginPage() {
       });
 
       if (result?.ok) {
-        router.push("/"); // redirect to home/dashboard
+        router.push("/FileUpload");
       } else {
         setError(result?.error || "Login failed. Please check your credentials.");
       }
@@ -37,7 +37,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full space-y-8 bg-white rounded-2xl shadow-2xl p-8">
         {/* Header */}
         <div className="text-center">
