@@ -1,46 +1,50 @@
-import { promises } from "dns"
-import { IVideo } from "@/models/Video"
+import { IVideo } from "@/models/Video";
 
-export type VideoFormData = Omit<IVideo, "_id">
+export type VideoFormData = Omit<IVideo, "_id">;
 
 type FetchOptions = {
-    methods?: "GET" | "POST" | "PUT" | "DELETE"
-    body?: any
-    headers?: Record<string, string>
-}
+  method?: "GET" | "POST" | "PUT" | "DELETE";
+  body?: any;
+  headers?: Record<string, string>;
+};
 
 class ApiClient {
-    private async fetch<T>(
-        endpoint: string,
-        options: FetchOptions = {}
-    ): promise<T> {
-        const { methods = "GET", body, headers = {} } = options
-        const defaultHeaders = {
-            "Content-Type": "application/json",
-            ...headers,
-        }
+  private async fetchData<T>(
+    endpoint: string,
+    options: FetchOptions = {}
+  ): Promise<T> {
+    const { method = "GET", body, headers = {} } = options;
 
-        const response = await fetch(`/api${endpoint}`, {
-            methods,
-            headers: defaultHeaders,
-            body: body ? JSON.stringify(body) : undefined
-        })
+    const defaultHeaders = {
+      "Content-Type": "application/json",
+      ...headers,
+    };
 
-        if (!response.ok) {
-            throw new Error(await response.text())
-        }
+    const response = await fetch(`/api${endpoint}`, {
+      method,
+      headers: defaultHeaders,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text());
     }
 
-    async getVideos() {
-        return this.fetch("/videos")
-    }
+    return response.json(); // ✅ return typed data
+  }
 
-    async createVideo(videoData: VideoFormData) {
-        return this.fetch("/videos", {
-            methods: "POST",
-            body: videoData
-        })
-    }
+  // Fetch all videos
+  async getVideos(): Promise<IVideo[]> {
+    return this.fetchData<IVideo[]>("/videos");
+  }
+
+  // Create a new video
+  async createVideo(videoData: VideoFormData): Promise<IVideo> {
+    return this.fetchData<IVideo>("/videos", {
+      method: "POST",
+      body: videoData,
+    });
+  }
 }
 
 export const apiClient = new ApiClient();
